@@ -3,7 +3,7 @@ import csv
 #from lxml import html
 #import time
 import json
-import arcpy
+import datetime
 
 #how do i seperate this from the mainfile???
 class scraper:
@@ -11,30 +11,30 @@ class scraper:
     #constructor method
     
     def __init__(self, json_site, source):
+        current = datetime.datetime.now()
+
+        self.date = current.strftime("%d%m%Y")
         self.json_site = json_site  
         self.source = source
-
-    #
+    
     def parse(self):
         count = 0
-        dataframe = [] # <- python list
+        self.dataframe = [] # <- python list
 
         resp = requests.get(self.json_site)
 
         if resp:
             print('Successfully connected to site!') #status 200
         else:
-            print('An error has occurred, please check internet connection.') #status 404
+            print('An error occurred, please check internet connection and try rerunning the script') #status 404
 
         #print(resp.text) <- html text, maybe practice using using beautifulsoup 
-
-    ####################################^^^CONNECTION CHECK^^^###################################################
 
         #requests JSON in (json() returns a dictionary{x:x})
         newJson = resp.json()["data"]["listings"]#only want data from listings
 
         for value in newJson:
-            if value["address"]: #<- if "x" exists in the dictionary
+            if value["name"]: #<- if "x" exists in the JSON dictionary
 
                 data = {#what you want         what its labeled
                         "business name":value["name"],
@@ -54,18 +54,20 @@ class scraper:
                         "retailer_services":value["retailer_services"][0],
                         }
 
-                dataframe.append(data)
+                self.dataframe.append(data)
                 count += 1
-                print("Dispensaries Converted: ", count)
+                print("Dispensaries Scraped: ", count)
 
 
+    def output(self, filename):
         #json streamwriter out
-        with open('output/weedmaps_0919.json', 'w', encoding = 'utf-8') as jsonStream: 
-            json.dump(dataframe, jsonStream)
+
+        with open("output/" + filename + self.date + ".json", 'w', encoding = 'utf-8') as jsonStream: 
+            json.dump(self.dataframe, jsonStream)
             jsonStream.close()
 
         #csv streamwriter /// maybe try pandas
-        with open('output/weedmaps_0919.csv', 'w', encoding = 'utf-8') as csvStream:
+        with open("output/" + filename + ".csv", 'w', encoding = 'utf-8') as csvStream:
             
             fields = [
                         "business name",
@@ -88,14 +90,8 @@ class scraper:
             writer = csv.DictWriter(csvStream, fieldnames = fields) #fieldnames is how Dictwriter identifies column names in 
             
             writer.writeheader()
-            writer.writerows(dataframe)
+            writer.writerows(self.dataframe)
 
             print("writing completed")
             csvStream.close()
 
-
-weedmaps_json_site = "https://api-g.weedmaps.com/discovery/v1/listings?sort_by=position&filter%5Blocation%5D=any&latlng=33.96210098266602%2C-118.2745513916016&page_size=100&page=1"
-source = "Weedmaps"
-
-dummy = scraper(weedmaps_json_site, source)
-dummy.parse()
