@@ -1,11 +1,10 @@
 import requests
 import csv
-#from lxml import html
-#import time
 import json
 import datetime
+#from lxml import html
+#import time
 
-#how do i seperate this from the mainfile???
 class scraper:
 
     #constructor method
@@ -13,7 +12,7 @@ class scraper:
     def __init__(self, json_site, source):
         current = datetime.datetime.now()
 
-        self.date = current.strftime("%d%m%Y")
+        self.date = current.strftime("%m%d%Y")
         self.json_site = json_site  
         self.source = source
     
@@ -50,8 +49,8 @@ class scraper:
                         "reviews_count": value["reviews_count"],
                         "license type":value["license_type"],
                         "type":value["type"],
-                        "intro_body":value["intro_body"],
-                        "retailer_services":value["retailer_services"][0],
+                        "retailer_services":value["retailer_services"],
+                        "date scraped": self.date
                         }
 
                 self.dataframe.append(data)
@@ -62,7 +61,7 @@ class scraper:
     def output(self, filename):
         #json streamwriter out
 
-        with open("output/" + filename + self.date + ".json", 'w', encoding = 'utf-8') as jsonStream: 
+        with open("output/" + filename + ".json", 'w', encoding = 'utf-8') as jsonStream: 
             json.dump(self.dataframe, jsonStream)
             jsonStream.close()
 
@@ -83,8 +82,8 @@ class scraper:
                         "reviews_count",
                         "license type",
                         "type",
-                        "intro_body",
                         "retailer_services",
+                        "date scraped"
                      ]
 
             writer = csv.DictWriter(csvStream, fieldnames = fields) #fieldnames is how Dictwriter identifies column names in 
@@ -94,4 +93,3 @@ class scraper:
 
             print("writing completed")
             csvStream.close()
-
