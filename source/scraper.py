@@ -11,26 +11,29 @@ class scraper:
     
     def __init__(self, json_site, source):
         current = datetime.datetime.now()
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:70.0) Gecko/20100101 Firefox/70.0'}
 
         self.date = current.strftime("%m%d%Y")
         self.json_site = json_site  
         self.source = source
+        self.resp = requests.get(json_site, headers = headers)
+
+    def connect(self):
+
+        if self.resp:
+            print('Successfully connected to site!') #status 200
+        else:
+            print('An error occurred, please check internet connection and try rerunning the script')
+            exit()
+
     
     def parse(self):
         count = 0
         self.dataframe = [] # <- python list
-
-        resp = requests.get(self.json_site)
-
-        if resp:
-            print('Successfully connected to site!') #status 200
-        else:
-            print('An error occurred, please check internet connection and try rerunning the script') #status 404
-
         #print(resp.text) <- html text, maybe practice using using beautifulsoup 
 
         #requests JSON in (json() returns a dictionary{x:x})
-        newJson = resp.json()["data"]["listings"]#only want data from listings
+        newJson = self.resp.json()["data"]["listings"]#only want data from listings
 
         for value in newJson:
             if value["name"]: #<- if "x" exists in the JSON dictionary

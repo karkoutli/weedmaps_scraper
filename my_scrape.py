@@ -3,11 +3,12 @@ from source import scraper
 # sys.path.append('source/')
 # import scraper
 
-weedmaps_json_site = "https://api-g.weedmaps.com/discovery/v1/listings?filter%5Bbounding_box%5D=33.77115672832914%2C-119.14947509765626%2C34.16977214177208%2C-117.39166259765626&page_size=100&page=1"
+weedmaps_json_site = "https://api-g.weedmaps.com/discovery/v1/listings?sort_by=position&filter%5Blocation%5D=any&latlng=33.96210098266602%2C-118.2745513916016&page_size=100&page=1"
 source = "Weedmaps"
 
 weedmap = scraper.scraper(weedmaps_json_site, source)
+weedmap.connect()
 weedmap.parse()
-weedmap.output("test")
+weedmap.output("11_01")
 
 print("All Done")
